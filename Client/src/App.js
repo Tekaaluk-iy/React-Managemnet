@@ -8,6 +8,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = theme => ({
   root: {
@@ -17,16 +18,31 @@ const styles = theme => ({
   },
   table: {
     minWidth: 1080
+  },
+  progress: {
+    margin: theme.spacing.unit * 2
   }
 })
+
+/*
+리액트 라이프사이클
+1 constructor()
+2 componentWillMount()
+3 render()
+4 componentDidMount()
+
+props or state => shouldComponentUpdate()
+*/
 
 class App extends React.Component {
 
   state = {
-    employees: ""
+    employees: "",
+    completed: 0
   }
 
   componentDidMount() {
+    this.timer = setInterval(this.progress, 20);
     this.callApi()
     .then(res => this.setState({employees: res}))
     .catch(err => console.log(err));
@@ -37,6 +53,11 @@ class App extends React.Component {
     const response = await fetch('/api/employees');
     const body = await response.json();
     return body;
+  }
+
+  progress = () => {
+    const { completed } = this.state;
+    this.setState({ completed: completed >= 100 ? 0 : completed + 1});
   }
 
   render () {
@@ -58,15 +79,16 @@ class App extends React.Component {
           { this.state.employees ? this.state.employees.map(e => { 
             return (
               <Employee
-                key={e.id}
-                id={e.id}
-                image={e.image}
-                number={e.number}
-                name={e.name}
+                key={e.id} id={e.id} image={e.image} number={e.number} name={e.name}
                 sex={e.sex}
                 position={e.position}
                 />)
-          }) : ""}
+          }) : 
+          <TableRow>
+            <TableCell colSpan="6" align="center">
+              <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
+            </TableCell>
+          </TableRow>}
           </TableBody>
         </Table>
       </Paper>
