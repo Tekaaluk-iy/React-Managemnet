@@ -20,31 +20,25 @@ const styles = theme => ({
   }
 })
 
-const employees = [
-  {
-  'number': '20200413001',
-  'image':'https://placeimg.com/128/128/1',
-  'name': '가나다',
-  'sex': '男性',
-  'position':'社員'
-  },
-  {
-    'number': '20200413002',
-    'image':'https://placeimg.com/128/128/2',
-    'name': '라마바',
-    'sex': '男性',
-    'position':'社員'
-  },
-  {
-    'number': '20200413003',
-    'image':'https://placeimg.com/128/128/3',
-    'name': '사아자',
-    'sex': '女性',
-    'position':'社員'
-  }
-]
-
 class App extends React.Component {
+
+  state = {
+    employees: ""
+  }
+
+  componentDidMount() {
+    this.callApi()
+    .then(res => this.setState({employees: res}))
+    .catch(err => console.log(err));
+  }
+
+  //비동기
+  callApi = async () => {
+    const response = await fetch('/api/employees');
+    const body = await response.json();
+    return body;
+  }
+
   render () {
   const { classes } = this.props;
     return (
@@ -52,6 +46,7 @@ class App extends React.Component {
         <Table className={classes.table}>
           <TableHead>
             <TableRow>
+            <TableCell>順番</TableCell>
               <TableCell>写真</TableCell>
               <TableCell>社員番号</TableCell>
               <TableCell>名前</TableCell>
@@ -60,16 +55,18 @@ class App extends React.Component {
             </TableRow>
           </TableHead>
           <TableBody>
-          { employees.map(e => { return (
+          { this.state.employees ? this.state.employees.map(e => { 
+            return (
               <Employee
-                key={e.number}
+                key={e.id}
+                id={e.id}
                 image={e.image}
                 number={e.number}
                 name={e.name}
                 sex={e.sex}
                 position={e.position}
                 />)
-          }) }
+          }) : ""}
           </TableBody>
         </Table>
       </Paper>
