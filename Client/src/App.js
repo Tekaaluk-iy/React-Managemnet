@@ -88,12 +88,14 @@ stateRefresh = () => {
                 <TableCell>名前</TableCell>
                 <TableCell>性別</TableCell>
                 <TableCell>職級</TableCell>
+                <TableCell>設定</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
             { this.state.employees ? this.state.employees.map(e => { 
               return (
-                <Employee
+                <Employee 
+                  stateRefresh={this.stateRefresh}
                   key={e.ID} id={e.ID} image={e.IMAGE} number={e.NUMBER} name={e.NAME}
                   sex={e.SEX} 
                   position={e.POSITION}
