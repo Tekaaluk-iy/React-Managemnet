@@ -107,15 +107,17 @@ class App extends React.Component {
 constructor(props) {
   super(props);
   this.state = {
-    employees: '',
-    completed: 0
+    Employees: '',
+    completed: 0,
+    searchKeyword: ''
   }
 }
 
 stateRefresh = () => {
   this.setState({
-    employees: '',
-    completed: 0
+    Employees: '',
+    completed: 0,
+    searchKeyword: ''
   });
   this.callApi()
   .then(res => this.setState({employees: res}))
@@ -141,7 +143,27 @@ stateRefresh = () => {
     this.setState({ completed: completed >= 100 ? 0 : completed + 1});
   }
 
+  handleValueChange = (e) => {
+    let nextState = {};
+    nextState[e.target.name] = e.target.value;
+    this.setState(nextState);
+  }
+
   render () {
+  const filteredComponents = (data) => {
+    data = data.filter((c) => {
+      return c.NAME.indexOf(this.state.searchKeyword) > -1;
+    });
+
+    return data.map((c) => {
+      return <Employee
+      stateRefresh={this.stateRefresh}
+      key={c.ID} id={c.ID} image={c.IMAGE} number={c.NUMBER} name={c.NAME}
+      sex={c.SEX} position={c.POSITION}
+      />
+    });
+  }
+
   const { classes } = this.props;
   const cellList = ["順番", "写真", "社員番号", "名前", "性別", "職級", "設定"]
     return (
@@ -168,7 +190,9 @@ stateRefresh = () => {
                   root: classes.inputRoot,
                   input: classes.inputInput,
                 }}
-                inputProps={{ 'aria-label': 'search' }}
+                name="searchKeyword"
+                value={this.state.searchKeyword}
+                onChange={this.handleValueChange}
               />
             </div>
           </Toolbar>
@@ -186,15 +210,8 @@ stateRefresh = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-            { this.state.employees ? this.state.employees.map(e => { 
-              return (
-                <Employee
-                  stateRefresh={this.stateRefresh}
-                  key={e.ID} id={e.ID} image={e.IMAGE} number={e.NUMBER} name={e.NAME}
-                  sex={e.SEX} 
-                  position={e.POSITION}
-                  />)
-            }) : 
+              {this.state.employees ? 
+                filteredComponents(this.state.employees) :
             <TableRow>
               <TableCell colSpan="6" align="center">
                 <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
